@@ -17,6 +17,10 @@ public class AddCityFragment extends DialogFragment {
     private EditText cityName;
     private EditText provinceName;
     private OnFragmentInteractionListener listener;
+
+
+    private boolean editMode = false;
+    private City editableCity;
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
@@ -28,8 +32,16 @@ public class AddCityFragment extends DialogFragment {
         }
     }
 
+    public AddCityFragment(){}
+
+    public AddCityFragment(City selectedCity){
+        this.editMode = true;
+        this.editableCity = selectedCity;
+
+    }
+
     public interface OnFragmentInteractionListener {
-        void onOKPressed(City city);
+        void onOKPressed(City city, boolean edit);
     }
 
     @NonNull
@@ -40,18 +52,31 @@ public class AddCityFragment extends DialogFragment {
         cityName = view.findViewById(R.id.city_name_edit_text);
         provinceName = view.findViewById(R.id.province_name_edit_text);
 
+        if (this.editMode){
+            cityName.setText(this.editableCity.getName());
+            provinceName.setText(this.editableCity.getProvince());
+        }
+
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 
         return builder
                 .setView(view)
-                .setTitle("Add City")
+                .setTitle("Add Or Edit City")
                 .setNegativeButton("Cancel", null)
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         String name = cityName.getText().toString();
                         String province = provinceName.getText().toString();
-                        listener.onOKPressed(new City(name, province));
+                        if (editMode){
+                            editableCity.setName(name);
+                            editableCity.setProvince(province);
+                            listener.onOKPressed(editableCity,true);
+                            editMode = false;
+                        }else{
+                            listener.onOKPressed(new City(name, province),false);
+                        }
+
                     }
                 }).create();
     }
