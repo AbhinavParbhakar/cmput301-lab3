@@ -11,58 +11,47 @@ import android.widget.ListView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
-public class MainActivity extends AppCompatActivity implements AddCityFragment.OnFragmentInteractionListener {
+public class MainActivity extends AppCompatActivity implements AddExpenseFragment.OnFragmentInteractionListener {
 
-    private ArrayList<City> dataList;
-    private ListView cityList;
-    private ArrayAdapter<City> cityAdapter;
+    private ArrayList<Expense> dataList;
+    private ListView expenseListView;
+    private ArrayAdapter<Expense> expenseListAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        String[] cities = {
-                "Edmonton", "Vancouver"
-        };
+        dataList = new ArrayList<>();
 
-        String[] provinces = {
-                "AB", "BC"
-        };
-        dataList = new ArrayList<City>();
 
-        for (int i = 0; i < cities.length; i++) {
-            City city = new City(cities[i], provinces[i]);
-            dataList.add(city);
-        }
+        expenseListView = findViewById(R.id.city_list);
 
-        cityList = findViewById(R.id.city_list);
-
-        cityAdapter = new CustomList(this, dataList);
-        cityList.setAdapter(cityAdapter);
+        expenseListAdapter = new CustomList(this, dataList);
+        expenseListView.setAdapter(expenseListAdapter);
 
         final FloatingActionButton addButton = findViewById(R.id.add_city_buton);
         addButton.setOnClickListener(v -> {
-            new AddCityFragment().show(getSupportFragmentManager(), "ADD_CITY");
+            new AddExpenseFragment().show(getSupportFragmentManager(), "ADD_CITY");
         });
 
-        cityList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        expenseListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                new AddCityFragment(dataList.get(i)).show(getSupportFragmentManager(), "ADD_CITY");
+                new AddExpenseFragment(dataList.get(i)).show(getSupportFragmentManager(), "ADD_CITY");
             }
         });
     }
 
     @Override
-    public void onOKPressed(City city,boolean edit) {
-        System.out.println(edit);
+    public void onOKPressed(Expense expense, boolean edit) {
+        System.out.println("Triggered onclick");
         if (edit == false) {
-            dataList.add(city);
+            dataList.add(expense);
+            System.out.println("Added expense");
         }
-        cityAdapter.notifyDataSetChanged();
+        expenseListAdapter.notifyDataSetChanged();
     }
 
 }
