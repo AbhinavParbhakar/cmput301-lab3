@@ -3,6 +3,8 @@ package com.example.listycity;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -45,11 +47,22 @@ public class MainActivity extends AppCompatActivity implements AddCityFragment.O
         addButton.setOnClickListener(v -> {
             new AddCityFragment().show(getSupportFragmentManager(), "ADD_CITY");
         });
+
+        cityList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                new AddCityFragment(dataList.get(i)).show(getSupportFragmentManager(), "ADD_CITY");
+            }
+        });
     }
 
     @Override
-    public void onOKPressed(City city) {
-        dataList.add(city);
+    public void onOKPressed(City city,boolean edit) {
+        System.out.println(edit);
+        if (edit == false) {
+            dataList.add(city);
+        }
         cityAdapter.notifyDataSetChanged();
     }
+
 }
