@@ -5,7 +5,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.NumberPicker;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -13,13 +12,13 @@ import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
 
-public class CustomList extends ArrayAdapter<City> {
-    private ArrayList<City> cities;
+public class CustomList extends ArrayAdapter<Expense> {
+    private ArrayList<Expense> expenses;
     private Context context;
 
-    public CustomList(Context context, ArrayList<City> cities) {
-        super(context, 0, cities);
-        this.cities = cities;
+    public CustomList(Context context, ArrayList<Expense> expenses) {
+        super(context, 0, expenses);
+        this.expenses = expenses;
         this.context = context;
     }
 
@@ -32,12 +31,17 @@ public class CustomList extends ArrayAdapter<City> {
             view = LayoutInflater.from(context).inflate(R.layout.content, parent, false);
         }
 
-        City city = cities.get(position);
-        TextView cityName = view.findViewById(R.id.city_name);
-        TextView provinceName = view.findViewById(R.id.province_name);
+        Expense expense = expenses.get(position);
+        TextView expenseName = view.findViewById(R.id.expense_name);
+        TextView monthlyCost = view.findViewById(R.id.monthly_cost);
+        TextView startDate = view.findViewById(R.id.start_date);
+        TextView comment = view.findViewById(R.id.comment);
 
-        cityName.setText(city.getName());
-        provinceName.setText(city.getProvince());
+
+        expenseName.setText(expense.getName());
+        monthlyCost.setText(expense.getMonthlyChargeAsString());
+        startDate.setText(expense.getStartDate());
+        comment.setText(expense.getComment());
         return view;
     }
 

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:maxLength="@integer/name_max_length"
+        android:ems="10"
+        android:hint="Expense Name: Example"
+        android:id="@+id/expense_name"
+        android:inputType="textPersonName"></EditText>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:maxLength="@integer/date_max_length"
+        android:ems="10"
+        android:hint="Start Date: YYYY-MM"
+        android:id="@+id/start_date"
+        android:inputType="text"></EditText>
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="Cost: 309.23"
+        android:id="@+id/monthly_cost"
+        android:inputType="number"></EditText>
+    <EditText
+        android:layout_width="match_parent"
+        android:maxLength="@integer/max_comment_size"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="Comment"
+        android:id="@+id/comment"
+        android:inputType="text"></EditText>
+</LinearLayout>
