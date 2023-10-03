@@ -17,6 +17,7 @@
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+
         android:maxLength="@integer/date_max_length"
         android:ems="10"
         android:hint="Start Date: YYYY-MM"
@@ -28,7 +29,7 @@
         android:ems="10"
         android:hint="Cost: 309.23"
         android:id="@+id/monthly_cost"
-        android:inputType="number"></EditText>
+        android:inputType="numberDecimal"></EditText>
     <EditText
         android:layout_width="match_parent"
         android:maxLength="@integer/max_comment_size"

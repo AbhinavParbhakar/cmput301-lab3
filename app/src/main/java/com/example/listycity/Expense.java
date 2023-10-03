@@ -14,7 +14,7 @@ public class Expense {
         this.name = name;
         this.monthlyCharge = monthlyCharge;
         this.comment = comment;
-        this.startDate = comment;
+        this.startDate = startDate;
     }
 
     public String getName() {

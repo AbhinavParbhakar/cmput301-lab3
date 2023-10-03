@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -18,6 +19,19 @@ public class MainActivity extends AppCompatActivity implements AddExpenseFragmen
     private ListView expenseListView;
     private ArrayAdapter<Expense> expenseListAdapter;
 
+    private TextView totalCost;
+
+
+    private void setTotalCostView(ArrayList<Expense> expenses) {
+        double total = 0;
+
+        for (Expense expense : expenses) {
+            total += expense.getMonthlyCharge();
+        }
+
+        totalCost.setText("" + total);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -25,7 +39,7 @@ public class MainActivity extends AppCompatActivity implements AddExpenseFragmen
 
         dataList = new ArrayList<>();
 
-
+        totalCost = findViewById(R.id.total_cost);
         expenseListView = findViewById(R.id.city_list);
 
         expenseListAdapter = new CustomList(this, dataList);
@@ -41,17 +55,35 @@ public class MainActivity extends AppCompatActivity implements AddExpenseFragmen
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 new AddExpenseFragment(dataList.get(i)).show(getSupportFragmentManager(), "ADD_CITY");
             }
+
         });
+
+        expenseListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+                dataList.remove(i);
+                expenseListAdapter.notifyDataSetChanged();
+                setTotalCostView(dataList);
+                return true;
+            }
+        });
+
     }
 
     @Override
-    public void onOKPressed(Expense expense, boolean edit) {
-        System.out.println("Triggered onclick");
-        if (edit == false) {
-            dataList.add(expense);
-            System.out.println("Added expense");
+    public void onOKPressed(Expense expense, boolean edit, boolean error,String message) {
+
+        if (!error) {
+            if (!dataList.contains(expense)) {
+                dataList.add(expense);
+                System.out.println("Added expense");
+            }
+            expenseListAdapter.notifyDataSetChanged();
+            setTotalCostView(dataList);
+        }else{
+            new AddExpenseFragment(expense,true,message).show(getSupportFragmentManager(), "ADD_CITY");
         }
-        expenseListAdapter.notifyDataSetChanged();
     }
+
 
 }

@@ -5,8 +5,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -15,10 +13,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
-import java.util.ArrayList;
 import java.util.regex.Pattern;
 
 public class AddExpenseFragment extends DialogFragment {
+    //Class that handles creating an AlertDialog
+    //Handles logic of error handling by creating an error message
+    //Passes that error message to the onOkPressed(), to be implemented via the interface
+    //If error state is true
     private EditText expenseName;
     private EditText startDate;
 
@@ -33,9 +34,16 @@ public class AddExpenseFragment extends DialogFragment {
     private Pattern pattern = Pattern.compile(dataRegex);
 
     private boolean editMode = false;
+    private boolean errorState = false;
+
+    private String newMessage = "";
+    private String previousMessage = "";
+
+
     private Expense editableExpense;
 
     private boolean validateStartDate(String startDate) {
+        //
         System.out.println("Checked startDate");
         if (startDate.length() == 0) {
             System.out.println("startDate invalid");
@@ -46,9 +54,7 @@ public class AddExpenseFragment extends DialogFragment {
     }
 
     private boolean validateExpenseName(String expenseName) {
-        System.out.println("Checked expenseName");
         if (expenseName.length() == 0) {
-            System.out.println("expenseName invalid");
             return false;
         } else {
             return true;
@@ -60,21 +66,36 @@ public class AddExpenseFragment extends DialogFragment {
         if (monthlyCharge.length() == 0) {
             System.out.println("monthlyCharge Invalid");
             return false;
-        } else if (Double.parseDouble(monthlyCharge) < 0) {
-            return false;
         } else {
-            return true;
-        }
-    }
-    private boolean isErrorState(ArrayList<EditText> inputFields) {
-        boolean errorState = false;
+            try {
+                double charge = Double.parseDouble(monthlyCharge);
 
-        for (EditText input : inputFields) {
-            if (input.getError() != null) {
-                return true;
+                if (charge < 0) {
+                    return false;
+                } else {
+                    return true;
+                }
+
+            } catch (Exception e) {
+                return false;
             }
         }
+    }
 
+    private boolean isErrorState(String name, String startDate, String monthlyCharge) {
+        boolean errorState = false;
+        if (!validateExpenseName(name)) {
+            newMessage += "Name Required\n";
+            errorState = true;
+        }
+        if (!validateMonthlyCharge(monthlyCharge)) {
+            newMessage += "Non-negative value Required\n";
+            errorState = true;
+        }
+        if (!validateStartDate(startDate)) {
+            newMessage += "\'YYYY-MM\' Format Required\n";
+            errorState = true;
+        }
         return errorState;
     }
 
@@ -97,23 +118,27 @@ public class AddExpenseFragment extends DialogFragment {
 
     }
 
-    public interface OnFragmentInteractionListener {
-        void onOKPressed(Expense expense, boolean edit);
+    public AddExpenseFragment(Expense selectedExpense, boolean errorState, String previousMessage) {
+        this.editMode = true;
+        this.editableExpense = selectedExpense;
+        this.errorState = errorState;
+        this.previousMessage = previousMessage;
     }
+
+
+    public interface OnFragmentInteractionListener {
+        void onOKPressed(Expense expense, boolean edit, boolean error, String errorMessage);
+    }
+
 
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         View view = LayoutInflater.from(getActivity()).inflate(R.layout.add_expense_fragment_layout, null);
-        ArrayList<EditText> inputFields = new ArrayList<>();
         expenseName = view.findViewById(R.id.expense_name);
-        inputFields.add(expenseName);
         startDate = view.findViewById(R.id.start_date);
-        inputFields.add(startDate);
         monthlyCharge = view.findViewById(R.id.monthly_cost);
-        inputFields.add(monthlyCharge);
         comment = view.findViewById(R.id.comment);
-        inputFields.add(comment);
 
         if (this.editMode) {
             expenseName.setText(this.editableExpense.getName());
@@ -125,7 +150,7 @@ public class AddExpenseFragment extends DialogFragment {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 
-        return builder
+        AlertDialog dialog = builder
                 .setView(view)
                 .setTitle("Add Or Edit City")
                 .setNegativeButton("Cancel", null)
@@ -137,44 +162,43 @@ public class AddExpenseFragment extends DialogFragment {
                         String tempMonthlyCharge = monthlyCharge.getText().toString();
                         String tempComment = comment.getText().toString();
 
-                        if (!validateExpenseName(tempExpenseName)) {
-                            System.out.println("caused an error");
-                            expenseName.setError("Expense Name Required");
-                        } else {
-                            expenseName.setError(null);
-                        }
-
-                        if (!validateStartDate(tempStartDate)) {
-                            System.out.println("caused an error");
-                            startDate.setError("\'YYYY-MM\' Format Required");
-                        } else {
-                            startDate.setError(null);
-                        }
-
-                        if (!validateMonthlyCharge(tempMonthlyCharge)) {
-                            System.out.println("caused an error");
-                            monthlyCharge.setError("Non-negative value Required");
-                        } else {
-                            monthlyCharge.setError(null);
-                        }
-
-                        if (isErrorState(inputFields) == false) {
+                        if (!isErrorState(tempExpenseName, tempStartDate, tempMonthlyCharge)) {
 
                             double monthlyChargeDouble = Double.parseDouble(tempMonthlyCharge);
+
 
                             if (editMode) {
                                 editableExpense.setName(tempExpenseName);
                                 editableExpense.setMonthlyCharge(monthlyChargeDouble);
                                 editableExpense.setComment(tempComment);
                                 editableExpense.setStartDate(tempStartDate);
-                                listener.onOKPressed(editableExpense, true);
+                                listener.onOKPressed(editableExpense, true, false, "");
                                 editMode = false;
                             } else {
-                                listener.onOKPressed(new Expense(tempExpenseName, monthlyChargeDouble, tempComment, tempStartDate), false);
+                                listener.onOKPressed(new Expense(tempExpenseName, monthlyChargeDouble, tempComment, tempStartDate), false, false, "");
                             }
+                        } else {
+                            if (editMode) {
+                                listener.onOKPressed(editableExpense, true, true, newMessage);
+                            } else {
+                                try {
+                                    listener.onOKPressed(new Expense(tempExpenseName, Double.parseDouble(tempMonthlyCharge), tempComment, tempStartDate), true, true, newMessage);
+                                }catch (NumberFormatException e){
+                                    listener.onOKPressed(new Expense(tempExpenseName, -1, tempComment, tempStartDate), true, true, newMessage);
+                                }
+                            }
+
                         }
 
                     }
                 }).create();
+
+        if (this.errorState) {
+
+            dialog.setMessage(this.previousMessage);
+        }
+
+
+        return dialog;
     }
 }
