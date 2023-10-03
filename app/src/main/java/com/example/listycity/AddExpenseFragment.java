@@ -18,8 +18,10 @@ import java.util.regex.Pattern;
 public class AddExpenseFragment extends DialogFragment {
     //Class that handles creating an AlertDialog
     //Handles logic of error handling by creating an error message
-    //Passes that error message to the onOkPressed(), to be implemented via the interface
-    //If error state is true
+    //Passes that error message and error bool to the onOkPressed(), to be implemented via the interface
+    //If error state is true, doesn't add data to code, and instead passes error to onOkPressed()
+    //sends new message, to be displayed, to onOkPressed()
+    //if error state is true, then displays old incoming error message
     private EditText expenseName;
     private EditText startDate;
 
@@ -43,10 +45,8 @@ public class AddExpenseFragment extends DialogFragment {
     private Expense editableExpense;
 
     private boolean validateStartDate(String startDate) {
-        //
-        System.out.println("Checked startDate");
+        //Checks via regex if date is in yyyy-mm format
         if (startDate.length() == 0) {
-            System.out.println("startDate invalid");
             return false;
         } else {
             return pattern.matcher(startDate).find();
@@ -54,6 +54,7 @@ public class AddExpenseFragment extends DialogFragment {
     }
 
     private boolean validateExpenseName(String expenseName) {
+        //checks to make sure that name isn't empty
         if (expenseName.length() == 0) {
             return false;
         } else {
@@ -62,9 +63,8 @@ public class AddExpenseFragment extends DialogFragment {
     }
 
     private boolean validateMonthlyCharge(String monthlyCharge) {
-        System.out.println("Checked monthlyCharge");
+        //checks to make sure the value is a double and is non empty, non negative
         if (monthlyCharge.length() == 0) {
-            System.out.println("monthlyCharge Invalid");
             return false;
         } else {
             try {
@@ -83,6 +83,7 @@ public class AddExpenseFragment extends DialogFragment {
     }
 
     private boolean isErrorState(String name, String startDate, String monthlyCharge) {
+        //checks each validation step, and then appends the appropriate message
         boolean errorState = false;
         if (!validateExpenseName(name)) {
             newMessage += "Name Required\n";
@@ -101,6 +102,8 @@ public class AddExpenseFragment extends DialogFragment {
 
     @Override
     public void onAttach(@NonNull Context context) {
+        //makes sure that mainActivity implements OnFragmentInteractionListener
+        //then casts the context to be of type OnFragmentInteractionListener
         super.onAttach(context);
         if (context instanceof OnFragmentInteractionListener) {
             listener = (OnFragmentInteractionListener) context;
@@ -110,15 +113,20 @@ public class AddExpenseFragment extends DialogFragment {
     }
 
     public AddExpenseFragment() {
+        //Constructor called when it's the first time adding an expense
     }
 
     public AddExpenseFragment(Expense selectedExpense) {
+        //Constructor called when it's time to edit an existing expense
         this.editMode = true;
         this.editableExpense = selectedExpense;
 
     }
 
-    public AddExpenseFragment(Expense selectedExpense, boolean errorState, String previousMessage) {
+    public AddExpenseFragment(Expense selectedExpense, boolean errorState, String previousMessage)
+    {
+        //Constructor called when the previous dialog state had an error and error message
+        //Passes in the same filled out information as last time so user can change it
         this.editMode = true;
         this.editableExpense = selectedExpense;
         this.errorState = errorState;
@@ -127,6 +135,7 @@ public class AddExpenseFragment extends DialogFragment {
 
 
     public interface OnFragmentInteractionListener {
+        //creates interface for handling onOKpressed
         void onOKPressed(Expense expense, boolean edit, boolean error, String errorMessage);
     }
 
@@ -134,6 +143,10 @@ public class AddExpenseFragment extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
+        //inflate the layout and return the created dialog using builder
+        //if the editMode is true, then fill the default text with the passed in info
+        //if error message is true, then also display the last dialog state error message
+        //
         View view = LayoutInflater.from(getActivity()).inflate(R.layout.add_expense_fragment_layout, null);
         expenseName = view.findViewById(R.id.expense_name);
         startDate = view.findViewById(R.id.start_date);
@@ -157,6 +170,9 @@ public class AddExpenseFragment extends DialogFragment {
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        //get the values inputted for each field
+                        //if there is an error, set error flag to true
+                        //pass in information accordingly, based on if it's a new entry or not
                         String tempExpenseName = expenseName.getText().toString();
                         String tempStartDate = startDate.getText().toString();
                         String tempMonthlyCharge = monthlyCharge.getText().toString();

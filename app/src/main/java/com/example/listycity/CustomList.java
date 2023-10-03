@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 import java.util.ArrayList;
 
 public class CustomList extends ArrayAdapter<Expense> {
+    //Extends ArrayAdapter and creates a new custom view for each item in list
     private ArrayList<Expense> expenses;
     private Context context;
 

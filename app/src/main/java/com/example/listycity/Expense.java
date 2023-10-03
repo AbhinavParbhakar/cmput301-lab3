@@ -1,6 +1,9 @@
 package com.example.listycity;
 
 public class Expense {
+    //basic class for storing all information for name, charge, comment, and start date
+    //defines setters and getters for each private variable
+    //defines contructor for creating object
     private String name;
     private double monthlyCharge;
 
